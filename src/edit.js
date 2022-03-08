@@ -19,6 +19,7 @@ import {
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { select, useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -36,6 +37,11 @@ export default function Edit( { attributes, setAttributes } ) {
 	} ) );
 
 	const [ isPreview, setPreview ] = useState();
+	const [ postId, setPostId ] = useState();
+
+	useEffect( () => {
+		setPostId( select( 'core/editor' ).getCurrentPostId() );
+	}, [] );
 
 	useEffect( () => setPreview( countryCode ), [ countryCode ] );
 
@@ -54,18 +60,18 @@ export default function Edit( { attributes, setAttributes } ) {
 		}
 	};
 
+	const posts = useSelect(
+		( selects ) => {
+			return selects( 'core' ).getEntityRecords( 'postType', 'post', {
+				search: countries[ countryCode ],
+				exclude: postId,
+			} );
+		},
+		[ countryCode, postId ]
+	);
+
 	useEffect( () => {
-		async function getRelatedPosts() {
-			const postId = window.location.href.match( /post=([\d]+)/ )[ 1 ];
-			const response = await window.fetch(
-				`/wp-json/wp/v2/posts?search=${ countries[ countryCode ] }&exclude=${ postId }`
-			);
-
-			if ( ! response.ok )
-				throw new Error( `HTTP error! Status: ${ response.status }` );
-
-			const posts = await response.json();
-
+		if ( posts ) {
 			setAttributes( {
 				relatedPosts:
 					posts?.map( ( relatedPost ) => ( {
@@ -75,9 +81,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					} ) ) || [],
 			} );
 		}
-
-		getRelatedPosts();
-	}, [ countryCode, setAttributes ] );
+	}, [ posts, setAttributes ] );
 
 	return (
 		<div { ...useBlockProps() }>
