@@ -8,7 +8,7 @@
 	"icon": "admin-site",
 	"description": "Block rendering a card with country information.",
 	"supports": {
-		"align": true
+		"align": [ "wide", "full", "center" ]
 	},
 	"attributes": {
 		"countryCode": {
@@ -44,10 +44,14 @@
 					"attribute": "data-post-id"
 				}
 			}
+		},
+		"align": {
+			"type": "string",
+			"default": "center"
 		}
 	},
 	"textdomain": "xwp-country-card",
-	"editorScript": "file:./index.js",
-	"editorStyle": "file:./index.css",
-	"style": "file:./style-index.css"
+	"editorScript": "file:../build/index.js",
+	"editorStyle": "file:../build/index.css",
+	"style": "file:../build/style-index.css"
 }
